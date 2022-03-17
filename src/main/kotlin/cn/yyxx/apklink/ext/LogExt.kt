@@ -4,23 +4,19 @@ import java.lang.reflect.Array
 import java.text.SimpleDateFormat
 
 
-private val formatter: SimpleDateFormat by lazy { SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS") }
-
-private const val TAG = "apklink"
-
 private enum class Level {
     DEBUG, ERROR
 }
 
 fun Any.logd() {
-    log(Level.DEBUG, TAG)
+    log(Level.DEBUG)
 }
 
 fun Any.loge() {
-    log(Level.ERROR, TAG)
+    log(Level.ERROR)
 }
 
-private fun Any?.log(level: Level, tag: String) {
+private fun Any?.log(level: Level) {
     val msg = if (this == null) {
         "null"
     } else {
@@ -44,13 +40,11 @@ private fun Any?.log(level: Level, tag: String) {
     }
 
     when (level) {
-        Level.DEBUG -> println("${formatter.getDate()} D/$tag $msg")
-        Level.ERROR -> System.err.println("${formatter.getDate()} E/$tag $msg")
+        Level.DEBUG -> println(msg)
+        Level.ERROR -> {
+            System.err.println(msg)
+            throw Exception(msg)
+        }
     }
 }
-
-private fun SimpleDateFormat.getDate(): String {
-    return format(System.currentTimeMillis())
-}
-
 
