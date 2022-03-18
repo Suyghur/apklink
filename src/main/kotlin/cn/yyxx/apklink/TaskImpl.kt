@@ -1,17 +1,14 @@
 package cn.yyxx.apklink
 
 import cn.yyxx.apklink.bean.TaskBean
-import cn.yyxx.apklink.ext.execute
-import cn.yyxx.apklink.ext.logd
-import cn.yyxx.apklink.ext.loge
-import cn.yyxx.apklink.ext.text
+import cn.yyxx.apklink.ext.*
 import cn.yyxx.apklink.internal.IChannel
 import cn.yyxx.apklink.internal.ITask
 import java.io.File
 
 class TaskImpl(private val bean: TaskBean) : ITask {
 
-    val channelImpl: IChannel? by lazy {
+    private val channelImpl: IChannel? by lazy {
         ChannelImplManager.getChannelImpl(bean)
     }
 
@@ -21,15 +18,33 @@ class TaskImpl(private val bean: TaskBean) : ITask {
             workspace.deleteRecursively()
         }
         workspace.mkdirs()
+        "initialize workspace ...".log()
+        val channelName = bean.commConfig.get("channel").asString
+        with(File("${GlobalConfig.libChannel}${File.separator}$channelName")) {
+            if (exists()) {
+                copyRecursively(File(GlobalConfig.channel))
+            } else {
+                "$absolutePath is not exists".painc()
+            }
+        }
+
+        with((File(GlobalConfig.libComm))) {
+            if (exists()) {
+                copyRecursively(File(GlobalConfig.comm))
+            } else {
+                "$absolutePath is not exists".painc()
+            }
+        }
+
         return this
     }
 
     override fun decompileApk(): ITask {
         val apkFile = File(bean.originApk)
         if (apkFile.exists()) {
-            "java -jar -Xms2048m -Xmx2048m ${GlobalConfig.apktoold261} d ${bean.originApk} -o ${GlobalConfig.decompile} --only-main-classes".execute().text()
+            "java -jar -Xms2048m -Xmx2048m ${GlobalConfig.apktoold261} d ${bean.originApk} -o ${GlobalConfig.decompile} --only-main-classes".execute()
         } else {
-            "origin apk file is not exists".loge()
+            "origin apk file is not exists".painc()
         }
         return this
     }
@@ -87,6 +102,13 @@ class TaskImpl(private val bean: TaskBean) : ITask {
 
         val xiPath = "$smaliPath${File.separator}XI"
         File(xiPath).deleteRecursively()
+        // 处理融合jar
+        jar2dex("${GlobalConfig.comm}${File.separator}jars", "${GlobalConfig.comm}${File.separator}jars")
+        dex2smali("${GlobalConfig.comm}${File.separator}jars${File.separator}classes.dex", "${GlobalConfig.decompile}${File.separator}smali")
+
+        // 处理渠道jar
+        jar2dex("${GlobalConfig.channel}${File.separator}jars", "${GlobalConfig.channel}${File.separator}jars")
+        dex2smali("${GlobalConfig.channel}${File.separator}jars${File.separator}classes.dex", "${GlobalConfig.decompile}${File.separator}smali")
 
         return this
     }
@@ -132,9 +154,9 @@ class TaskImpl(private val bean: TaskBean) : ITask {
     override fun recompileApk(): ITask {
         val output = File(GlobalConfig.decompile)
         if (output.exists()) {
-            "java -jar -Xms2048m -Xmx2048m ${GlobalConfig.apktoold261} b ${GlobalConfig.decompile} -o ${bean.outputApk}".execute().text()
+            "java -jar -Xms2048m -Xmx2048m ${GlobalConfig.apktoold261} b ${GlobalConfig.decompile} -o ${bean.outputApk}".execute()
         } else {
-            "${GlobalConfig.decompile} file is not exists".loge()
+            "${GlobalConfig.decompile} file is not exists".painc()
         }
         return this
     }

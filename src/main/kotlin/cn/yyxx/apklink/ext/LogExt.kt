@@ -1,22 +1,21 @@
 package cn.yyxx.apklink.ext
 
 import java.lang.reflect.Array
-import java.text.SimpleDateFormat
 
 
 private enum class Level {
     DEBUG, ERROR
 }
 
-fun Any.logd() {
-    log(Level.DEBUG)
+fun Any.log() {
+    print(Level.DEBUG)
 }
 
-fun Any.loge() {
-    log(Level.ERROR)
+fun Any.painc() {
+    print(Level.ERROR)
 }
 
-private fun Any?.log(level: Level) {
+private fun Any?.print(level: Level) {
     val msg = if (this == null) {
         "null"
     } else {

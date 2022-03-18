@@ -4,7 +4,6 @@ import cn.yyxx.apklink.bean.TaskBean
 import cn.yyxx.apklink.channel.ChannelEyuangameImpl
 import cn.yyxx.apklink.channel.ChannelHuaweiImpl
 import cn.yyxx.apklink.channel.ChannelOppoImpl
-import cn.yyxx.apklink.ext.logd
 import cn.yyxx.apklink.internal.IChannel
 
 object ChannelImplManager {

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+    <permission>
+        <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+        <uses-permission android:name="android.permission.INTERNET"/>
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+        <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+        <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+        <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+        <uses-permission android:name="android.permission.GET_TASKS"/>
+        <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+        <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+        <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    </permission>
+    <appliction>
+        <!--允许oppo手机绘制到耳朵区-->
+        <meta-data android:name="android.max_aspect" android:value="2.4"/>
+        <!-- nearme game sdk config goes here -->
+        <!--9.0及以上设备需要-->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <!-- 日志开关，发布时候设置为false -->
+        <meta-data android:name="debug_mode" android:value="true"/>
+        <!-- true:单机游戏   false:网游 -->
+        <meta-data android:name="is_offline_game" android:value="false"/>
+        <!--appKey，游戏上线时请务必替换成游戏自身的appkey-->
+        <meta-data android:name="app_key" android:value="${APP_KEY}"/>
+        <meta-data android:name="app_secret" android:value="${APP_SECRET}"/>
+
+        <activity android:name="com.nearme.game.sdk.component.proxy.ProxyActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"
+                  android:process=":gcsdk"
+                  android:theme="@style/Theme_Dialog_Custom"/>
+        <activity android:name="com.nearme.game.sdk.component.proxy.ExitActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"
+                  android:launchMode="singleTask"
+                  android:process=":gcsdk"
+                  android:theme="@style/Theme_Dialog_Custom"/>
+
+        <service android:name="com.nearme.game.sdk.component.proxy.ProxyApiService"
+                 android:priority="1000"
+                 android:process=":gcsdk"/>
+
+        <receiver android:name="com.nearme.game.sdk.component.proxy.ProxyUserCenterOperateReceiver"
+                  android:exported="true"
+                  android:process=":gcsdk">
+            <intent-filter>
+                <action android:name="com.oppo.usercenter.account_login"/>
+                <action android:name="com.oppo.usercenter.account_logout"/>
+                <action android:name="com.oppo.usercenter.modify_name"/>
+                <action android:name="com.usercenter.action.receiver.account_login"/>
+                <action android:name="com.heytap.usercenter.account_logout"/>
+            </intent-filter>
+        </receiver>
+    </appliction>
+</manifest>

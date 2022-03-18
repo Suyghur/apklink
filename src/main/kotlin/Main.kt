@@ -1,14 +1,14 @@
 import cn.yyxx.apklink.GlobalConfig
 import cn.yyxx.apklink.TaskImpl
 import cn.yyxx.apklink.bean.TaskBean
-import cn.yyxx.apklink.ext.loge
+import cn.yyxx.apklink.ext.painc
 import com.google.gson.Gson
 import java.io.File
 import java.nio.charset.Charset
 
 fun main(args: Array<String>) {
     if (args.size != 2) {
-        "输入参数有误，请检查".loge()
+        "输入参数有误，请检查".painc()
         return
     }
     val option = args[0]
@@ -25,6 +25,6 @@ fun main(args: Array<String>) {
             .execChannelExtraScript()
             .recompileApk()
     } else {
-        "输入参数有误，请检查".loge()
+        "输入参数有误，请检查".painc()
     }
 }
