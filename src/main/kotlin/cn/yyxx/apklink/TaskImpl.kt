@@ -103,6 +103,46 @@ class TaskImpl(private val bean: TaskBean) : ITask {
         }.forEach {
             it.deleteRecursively()
         }
+
+        // 移除母包lib中的sdk资源
+        val abis = mutableListOf<String>()
+        val commSo = mutableListOf(
+            "libdolin-zap.so",
+            "libeyuancomm.so",
+            "libmmkv.so",
+            "libsecsdk.so"
+        )
+        val lib = File("${GlobalConfig.decompile}/lib")
+        lib.walk().maxDepth(1)
+            .filter {
+                it.isDirectory
+            }.forEach {
+                abis.add(it.absolutePath)
+            }
+
+        abis.forEach { abi ->
+            File(abi).walk().maxDepth(1)
+                .filter {
+                    it.extension == "so"
+                }.filter {
+                    commSo.contains(it.name)
+                }.filter {
+                    it.isFile
+                }.forEach {
+                    it.delete()
+                }
+        }
+        return this
+    }
+
+    override fun handleCommSmali(): ITask {
+        // 处理融合jar
+        jar2dex("${GlobalConfig.comm}/jars", "${GlobalConfig.comm}/jars")
+        dex2smali("${GlobalConfig.comm}/jars/classes.dex", "${GlobalConfig.decompile}/smali")
+        return this
+    }
+
+    override fun handleCommRes(): ITask {
         // 复制融合sdk的assets
         val decompileAssets = File("${GlobalConfig.decompile}/assets")
 
@@ -120,7 +160,6 @@ class TaskImpl(private val bean: TaskBean) : ITask {
         return this
     }
 
-
     private fun handleCommConfig() {
         val file = File("${GlobalConfig.decompile}/assets/yyxx_game/yyxx_comm.properties")
         file.parentFile.mkdirs()
@@ -133,17 +172,6 @@ class TaskImpl(private val bean: TaskBean) : ITask {
         FileOutputStream(file).use { fos ->
             properties.store(fos, null)
         }
-    }
-
-    override fun handleCommSmali(): ITask {
-        // 处理融合jar
-        jar2dex("${GlobalConfig.comm}/jars", "${GlobalConfig.comm}/jars")
-        dex2smali("${GlobalConfig.comm}/jars/classes.dex", "${GlobalConfig.decompile}/smali")
-        return this
-    }
-
-    override fun handleCommRes(): ITask {
-        return this
     }
 
     override fun handleChannelSmali(): ITask {
